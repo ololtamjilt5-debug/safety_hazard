@@ -10,7 +10,6 @@ import { JwtModule } from '@nestjs/jwt';
     UsersModule, // Энийг нэмснээр UsersService-ийг AuthModule дотор ашиглах эрх нээгдэнэ.
     JwtModule.register({
       secret: 'SECRET_KEY_123',
-      signOptions: { expiresIn: '1d' },
     }),
   ],
   providers: [AuthService, JwtStrategy],

@@ -12,8 +12,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: any) {
-    // Энэ функц токен хүчинтэй байвал ажиллана
-    return { userId: payload.sub, username: payload.username, level: payload.level };
-  }
+async validate(payload: any) {
+  return { 
+    userId: payload.sub, 
+    username: payload.username, 
+    level: payload.level // Энэ талбар заавал байх ёстой!
+  };
+}
 }
