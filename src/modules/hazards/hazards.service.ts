@@ -17,10 +17,16 @@ export class HazardsService {
   /**
    * Шинэ аюул бүртгэх
    */
-  async create(createHazardDto: CreateHazardDto, user: any): Promise<Hazard> {
+  async create(createHazardDto: CreateHazardDto, user: any, imagePath?: string) {
+    // 1. Console дээр user объект ирж байгааг, дотор нь ямар ID байгааг шалгах
+    console.log('Reporter user object:', user);
+
     const newHazard = this.hazardsRepository.create({
       ...createHazardDto,
-      reporter: { id: user.userId } as User, // JwtStrategy-аас ирсэн userId
+      // TypeORM харилцааг тодорхойлохдоо reporter: { id: user.id } гэж өгөх нь хамгийн найдвартай
+      // Хэрэв таны JwtStrategy id-г 'userId' гэж дамжуулдаг бол user.userId гэж бичнэ
+      reporter: { id: user.id || user.userId },
+      image: imagePath,
     });
 
     return await this.hazardsRepository.save(newHazard);

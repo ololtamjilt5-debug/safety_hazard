@@ -8,6 +8,8 @@ import {
   Request,
   Param,
   Query,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { HazardsService } from './hazards.service';
 import { CreateHazardDto } from './dto/GreateHazardDto';
@@ -15,15 +17,33 @@ import { AuthGuard } from '@nestjs/passport';
 import { HazardStatus } from './entities/hazard.entity';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { CloudinaryService } from 'src/common/cloudinary/cloudinary.service';
 
 @Controller('hazards')
 export class HazardsController {
-  constructor(private readonly hazardsService: HazardsService) {}
+  constructor(
+    private readonly hazardsService: HazardsService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   @UseGuards(AuthGuard('jwt'))
   @Post('create')
-  async create(@Body() createHazardDto: CreateHazardDto, @Request() req) {
-    return this.hazardsService.create(createHazardDto, req.user);
+  @UseInterceptors(FileInterceptor('image')) // Storage тохиргоогүй бол шууд санах ойд авна
+  async create(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() createHazardDto: CreateHazardDto,
+    @Request() req,
+  ) {
+    let imageUrl = undefined;
+
+    if (file) {
+      // Cloudinary руу хуулах
+      const uploadRes = await this.cloudinaryService.uploadImage(file);
+      imageUrl = uploadRes.secure_url; // Cloudinary-гаас ирсэн зургийн URL
+    }
+
+    return this.hazardsService.create(createHazardDto, req.user, imageUrl);
   }
 
   @UseGuards(AuthGuard('jwt')) // Заавал нэвтэрсэн байх ёстой

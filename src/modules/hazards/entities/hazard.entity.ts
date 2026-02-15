@@ -86,7 +86,10 @@ export class Hazard {
   })
   level: HazardLevel;
 
-  @Column({ nullable: true }) // Зураггүй байж болзошгүй бол nullable болгож болно
+  @Column({
+    type: 'text', // postgres дээр 'longtext'-ийн оронд 'text' ашиглана
+    nullable: true,
+  })
   image: string;
 
   @Column({
